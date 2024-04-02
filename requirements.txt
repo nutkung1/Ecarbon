@@ -5,3 +5,5 @@ streamlit-chat==0.1.1
 streamlit-folium==0.18.0
 streamlit-webrtc==0.47.1
 mysql-connector-python==8.3.0
+snowflake-connector-python==3.7.0
+snowflake-snowpark-python==1.12.1
