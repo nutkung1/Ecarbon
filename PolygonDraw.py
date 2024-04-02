@@ -57,5 +57,5 @@ def polygon():
         # Streamlit component to display the Folium map
         folium_static(map_div)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     polygon()

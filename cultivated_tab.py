@@ -43,10 +43,10 @@ class CultivatedTab:
         longitude = st.text_input("ลองจิจูด", key="longitude")
         update_button = st.button("อัพเดท", key="update_button")
         if update_button:
-            sql = "UPDATE cultivated_areas SET farmer_id = ?, cultivated_areas_in_rai = ?, latitude = ?, longitude = ? WHERE cultivated_areas_id = ?"
+            sql = "UPDATE cultivated_areas SET farmer_id = %s, cultivated_areas_in_rai = %s, latitude = %s, longitude = %s WHERE cultivated_areas_id = %s"
             val = (farmer_id, cultivated_area, latitude, longitude, id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
 
     def delete_farmer(self):
@@ -54,8 +54,8 @@ class CultivatedTab:
         id = st.number_input("ไอดีพื้นที่ปลูก", min_value=1, key="del_cultivated_id")
         delete_button = st.button("Delete", key="delete_button_cul")
         if delete_button:
-            sql = "DELETE FROM cultivated_areas WHERE cultivated_areas_id = ?"
+            sql = "DELETE FROM cultivated_areas WHERE cultivated_areas_id = %s"
             val = (id,)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("Record Deleted Successfully!!!")

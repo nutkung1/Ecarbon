@@ -10,14 +10,14 @@ class carbon_footprint:
         GHG1 = st.number_input("GHG1 (ton/Co2)", key="GHG1")
         GHG2 = st.number_input("GHG2 (ton/Co2)", key="GHG2")
         GHG3 = st.number_input("GHG3 (ton/Co2)", key="GHG3")
-        self.mycursor.execute("SELECT * FROM carbon_footprint")
-        result = self.mycursor.fetchall()
         create_button = st.button("สร้าง", key="carbon_footprint_button")
         if create_button:
-            sql = "insert into carbon_footprint(carbon_footprint_id,cultivated_areas_id, total_carbon_footprint, GHG1, GHG2, GHG3) values(:1,:2,:3,:4,:5,:6)"
-            val = (len(result)+1,cultivated_area_id, total_carbon_footprint, GHG1, GHG2, GHG3)
+            self.mycursor.execute("SELECT COUNT(*) FROM carbon_footprint")
+            result = self.mycursor.fetchone()[0]
+            sql = "insert into carbon_footprint(carbon_footprint_id,cultivated_areas_id, total_carbon_footprint, GHG1, GHG2, GHG3) values(%s,%s,%s,%s,%s,%s)"
+            val = (result+1,cultivated_area_id, total_carbon_footprint, GHG1, GHG2, GHG3)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("สร้างบันทึกสำเร็จ!!!")
     def carbon_footprint_read(self):
         st.subheader("อ่านข้อมูลCarbon Footprint")
@@ -35,18 +35,18 @@ class carbon_footprint:
         GHG3 = st.number_input("GHG3 (ton/Co2)", key="GHG3_up")
         update_button = st.button("อัพเดท", key="carbon_footprint_button")
         if update_button:
-            sql = "UPDATE carbon_footprint set cultivated_areas_id=?, total_carbon_footprint=?, GHG1=?, GHG2=?, GHG3=? WHERE carbon_footprint_id=?"
+            sql = "UPDATE carbon_footprint set cultivated_areas_id=%s, total_carbon_footprint=%s, GHG1=%s, GHG2=%s, GHG3=%s WHERE carbon_footprint_id=%s"
             val = (cultivated_area_id, total_carbon_footprint, GHG1, GHG2, GHG3, id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
     def carbon_footprint_delete(self):
         st.subheader("ลบข้อมูล")
         id = st.number_input("ไอดีCarbon Footprint", min_value=1, key="carbon_footprint_del")
         delete_button = st.button("ลบ", key="Delete_button_carbon_footprint")
         if delete_button:
-            sql = "DELETE FROM carbon_footprint WHERE carbon_footprint_id=?"
+            sql = "DELETE FROM carbon_footprint WHERE carbon_footprint_id=%s"
             val = (id,)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("Record Deleted Successfully!!!")

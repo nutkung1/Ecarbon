@@ -11,13 +11,13 @@ class carbon_offset:
         filter_cake = st.number_input("ใช้Filter Cakeทดแทนไปเท่าไหร่(Rai)", key="filter_cake")
         beans_rai = st.number_input("ปลูกถั่วเขียวไปกี่ไร่", key="beans_rai")
         create_button = st.button("สร้าง", key="carbon_offset_button")
-        self.mycursor.execute("SELECT * FROM carbon_offset")
-        result = self.mycursor.fetchall()
         if create_button:
-            sql = "insert into carbon_offset(carbon_offset_id, cultivated_areas_id, total_carbon_offset, solar_cell_in_MW, filer_cake_in_rai, beans_in_rai) values(:1,:2,:3,:4,:5,:6)"
-            val = (len(result)+1,cultivated_area_id,total_carbon_offset,solar_cell,filter_cake,beans_rai)
+            self.mycursor.execute("SELECT COUNT(*) FROM carbon_offset")
+            result = self.mycursor.fetchone()[0]
+            sql = "insert into carbon_offset(carbon_offset_id, cultivated_areas_id, total_carbon_offset, solar_cell_in_MW, filer_cake_in_rai, beans_in_rai) values(%s,%s,%s,%s,%s,%s)"
+            val = (result+1,cultivated_area_id,total_carbon_offset,solar_cell,filter_cake,beans_rai)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("สร้างบันทึกสำเร็จ!!!")
     def carbon_offset_read(self):
         st.subheader("อ่านข้อมูลCarbon Offset")
@@ -35,18 +35,18 @@ class carbon_offset:
         beans_rai = st.number_input("ปลูกถั่วเขียวไปกี่ไร่", key="beans_rai_up")
         update_button = st.button("อัพเดท", key="carbon_offset_button")
         if update_button:
-            sql = "UPDATE carbon_offset set cultivated_areas_id=?, total_carbon_offset=?, solar_cell_in_MW=?, filer_cake_in_rai=?, beans_in_rai=? WHERE carbon_offset_id=?"
+            sql = "UPDATE carbon_offset set cultivated_areas_id=%s, total_carbon_offset=%s, solar_cell_in_MW=%s, filer_cake_in_rai=%s, beans_in_rai=%s WHERE carbon_offset_id=%s"
             val = (cultivated_area_id, total_carbon_offset, solar_cell, filter_cake, beans_rai, id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
     def carbon_offset_delete(self):
         st.subheader("ลบข้อมูล")
         id = st.number_input("ไอดีCarbon Offset", min_value=1, key="carbon_offset_del")
         delete_button = st.button("ลบ", key="Delete_button_carbon_offset")
         if delete_button:
-            sql = "DELETE FROM carbon_offset WHERE carbon_offset_id=?"
+            sql = "DELETE FROM carbon_offset WHERE carbon_offset_id=%s"
             val = (id,)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("Record Deleted Successfully!!!")
