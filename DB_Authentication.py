@@ -4,9 +4,28 @@ import datetime
 import re
 import mysql.connector
 import os
+import snowflake.connector
 
 # Establish database connection
 mydb = st.connection("snowflake")
+account = "PVFGFAY-IY52619"
+#account = "gp94921.ap-southeast-1"
+user = "suchanat"
+password = "NuT0863771558-"
+role = "ACCOUNTADMIN"
+warehouse = "COMPUTE_WH"
+database = "ECARBON"
+schema = "ECARBON"
+
+# Create a connection
+mydb = snowflake.connector.connect(
+    user=user,
+    password=password,
+    account=account,
+    warehouse=warehouse,
+    database=database,
+    schema=schema
+)
 mycursor = mydb.cursor()
 
 def validate_email(email):

@@ -10,6 +10,7 @@ from carbon_offset import carbon_offset
 from carbon_footprint import carbon_footprint
 import pandas as pd
 from PolygonDraw import polygon
+import snowflake.connector
 
 # Set page configuration
 # st.set_page_config(page_title='Streamlit', page_icon='👨🏻‍🌾', initial_sidebar_state="collapsed")
@@ -21,7 +22,25 @@ from PolygonDraw import polygon
 #     password=st.secrets.db_credentials.password,
 #     database=st.secrets.db_credentials.database,
 # )
-mydb = st.connection("snowflake")
+# mydb = st.connection("snowflake")
+account = "PVFGFAY-IY52619"
+#account = "gp94921.ap-southeast-1"
+user = "suchanat"
+password = "NuT0863771558-"
+role = "ACCOUNTADMIN"
+warehouse = "COMPUTE_WH"
+database = "ECARBON"
+schema = "ECARBON"
+
+# Create a connection
+mydb = snowflake.connector.connect(
+    user=user,
+    password=password,
+    account=account,
+    warehouse=warehouse,
+    database=database,
+    schema=schema
+)
 mycursor = mydb.cursor()
 print("Connection Established")
 cultivated_areas_tab = CultivatedTab(mycursor, mydb)
