@@ -7,7 +7,7 @@ import os
 import snowflake.connector
 
 # Establish database connection
-mydb = st.connection("snowflake")
+#mydb = st.connection("snowflake")
 account = "PVFGFAY-IY52619"
 #account = "gp94921.ap-southeast-1"
 user = "suchanat"
