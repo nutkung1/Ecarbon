@@ -1,6 +1,6 @@
-streamlit
-pandas
-streamlit_authenticator
-re
-os
-datetime
+streamlit == 1.31.1
+pandas == 2.1.4
+streamlit-authenticator==0.3.1
+streamlit-chat==0.1.1
+streamlit-folium==0.18.0
+streamlit-webrtc==0.47.1
