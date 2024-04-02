@@ -14,20 +14,18 @@ class CultivatedTab:
         deed = st.file_uploader("อัพโหลดไฟล์โฉนดที่ดิน", type=["jpg", "png"])
         create_button = st.button("สร้าง", key="create button")
         if create_button:
+            self.mycursor.execute("SELECT COUNT(*) FROM cultivated_areas")
+            result = self.mycursor.fetchone()[0]
             new_path = "/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/DEED"
-            file_count = 0
-            for item in os.listdir(new_path):
-                if os.path.isfile(os.path.join(new_path, item)):
-                    file_count += 1
-            fileName = os.path.join(new_path, f"{file_count + 1}.jpg")
+            fileName = os.path.join(new_path, f"{result + 1}.jpg")
             with open(fileName, "wb") as file:
                 file.write(deed.getbuffer())
                 st.success("สร้างบันทึกสำเร็จ!!!")
-            sql = "INSERT INTO cultivated_areas (Cultivated_areas_id, farmer_id, cultivated_areas_in_rai, latitude, longitude, deed) VALUES (:1, :2, :3, :4, :5, :6)"
-            val = (file_count + 1, farmer_id, cultivated_area, latitude, longitude, fileName)
+            sql = "INSERT INTO cultivated_areas (Cultivated_areas_id, farmer_id, cultivated_areas_in_rai, latitude, longitude, deed) VALUES (%s, %s, %s, %s, %s, %s)"
+            val = (result + 1, farmer_id, cultivated_area, latitude, longitude, fileName)
 
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("สร้างบันทึกสำเร็จ!!!")
 
     def read_farmer(self):

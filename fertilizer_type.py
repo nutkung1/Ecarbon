@@ -9,13 +9,13 @@ class Fertilizer_Type_Tab:
         fer_type_name = st.text_input("กรอกชื่อชนิดปุ๋ย", key="fer_typename")
         fer_des = st.text_input("คำอธิบาย", key="fer_des")
         create_button = st.button("สร้าง", key="create_fertype_button")
-        self.mycursor.execute("SELECT * FROM fertilizer_type")
-        result = self.mycursor.fetchall()
         if create_button:
-            sql = "insert into fertilizer_type(FERTILIZER_TYPE_ID,type_name, description) values(:1,:2,:3)"
-            val = (len(result)+1,fer_type_name,fer_des)
+            self.mycursor.execute("SELECT COUNT(*) FROM fertilizer_type")
+            result = self.mycursor.fetchone()[0]
+            sql = "insert into fertilizer_type(FERTILIZER_TYPE_ID,type_name, description) values(%s, %s, %s)"
+            val = (result+1,fer_type_name,fer_des)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("สร้างบันทึกสำเร็จ!!!")
     def fer_type_read(self):
         st.subheader("อ่านข้อมูลชนิดปุ๋ย")
@@ -30,18 +30,18 @@ class Fertilizer_Type_Tab:
         up_fer_des = st.text_input("คำอธิบาย", key="up_fer_des")
         update_button = st.button("อัพเดท", key="update_fertype_button")
         if update_button:
-            sql = "UPDATE fertilizer_type set type_name=?, description=? WHERE fertilizer_type_id=?"
+            sql = "UPDATE fertilizer_type set type_name=%s, description=%s WHERE fertilizer_type_id=%s"
             val = (up_fer_type_name, up_fer_des, up_fer_id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
     def fer_type_del(self):
         st.subheader("ลบข้อมูล")
         id = st.number_input("ไอดีชนิดปุ๋ย", min_value=1, key="fertilizer_del_id")
         delete_button = st.button("Delete", key="Delete_button_fertype")
         if delete_button:
-            sql = "DELETE FROM fertilizer_type WHERE fertilizer_type_id=?"
+            sql = "DELETE FROM fertilizer_type WHERE fertilizer_type_id=%s"
             val = (id,)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("Record Deleted Successfully!!!")

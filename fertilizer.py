@@ -15,11 +15,20 @@ class FertilizerTab:
         result = self.mycursor.fetchall()
         create_button = st.button("สร้าง", key="create_button_fertilzier")
         if create_button:
-            sql = "insert into fertilizer(fertilizer_id, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate,  fertilizer_type_id) values(:1,:2,:3,:4,:5,:6)"
-            val = (len(result)+1, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate,
-                   fertilizer_type_id)
+            self.mycursor.execute("SELECT COUNT(*) FROM fertilizer")
+            count = self.mycursor.fetchone()[0]
+            # Insert new row
+            sql = "INSERT INTO fertilizer(fertilizer_id, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate, fertilizer_type_id) VALUES (%s, %s, %s, %s, %s, %s)"
+            val = (
+            count + 1, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate,
+            fertilizer_type_id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
+            # sql = "insert into fertilizer(fertilizer_id, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate,  fertilizer_type_id) values(:1,:2,:3,:4,:5,:6)"
+            # val = (len(result)+1, cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_productiondate,
+            #        fertilizer_type_id)
+            # self.mycursor.execute(sql, val)
+            # self.mydb._instance.commit()
             st.success("สร้างบันทึกสำเร็จ!!!")
     def fertilizer_read(self):
         st.subheader("อ่านข้อมูลปุ๋ย")
@@ -37,19 +46,19 @@ class FertilizerTab:
         fertilizer_type_id = st.number_input("ไอดีของชนิดปุ๋ย", key="update_fer_typeid", min_value=1)
         update_button = st.button("อัพเดท", key="update_but_fer")
         if update_button:
-            sql = "UPDATE fertilizer set cultivated_areas_id=?,fertilizer_name=?,fertilizer_weight_in_kilogram=?,fertilizer_productiondate=?,fertilizer_type_id=? WHERE fertilizer_id=?"
+            sql = "UPDATE fertilizer set cultivated_areas_id=%s,fertilizer_name=%s,fertilizer_weight_in_kilogram=%s,fertilizer_productiondate=%s,fertilizer_type_id=%s WHERE fertilizer_id=%s"
             val = (cultivated_areas_id, fertilizer_name, fertilizer_weight_in_kilogram, fertilizer_production,
                    fertilizer_type_id, fertilizer_id)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
     def fertilizer_delete(self):
         st.subheader("ลบข้อมูล")
         id = st.number_input("ไอดีปุ๋ย", min_value=1, key="fertilizer_id")
         delete_button = st.button("Delete", key="Delete_button_fer")
         if delete_button:
-            sql = "DELETE FROM fertilizer WHERE fertilizer_id=?"
+            sql = "DELETE FROM fertilizer WHERE fertilizer_id=%s"
             val = (id,)
             self.mycursor.execute(sql, val)
-            self.mydb._instance.commit()
+            self.mydb.commit()
             st.success("Record Deleted Successfully!!!")
