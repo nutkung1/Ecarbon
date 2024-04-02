@@ -74,7 +74,7 @@ try:
 
     for index in range(len(emails)):
         credentials['usernames'][usernames[index]] = {'name': emails[index], 'password': passwords[index]}
-    st.sidebar.image("/Users/suchanatratanarueangrong/Downloads/netzero.png")
+    st.sidebar.image("https://www.mitrphol.com/images/netzero/netzero.png")
     authenticator = stauth.Authenticate(credentials, cookie_name='Streamlit', key='abcdef', cookie_expiry_days=4)
 
     info, info1 = st.columns(2)
