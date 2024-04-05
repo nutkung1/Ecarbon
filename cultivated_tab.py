@@ -1,6 +1,8 @@
 import streamlit as st
 import mysql.connector
 import os
+import firebase_admin
+from firebase_admin import credentials, storage
 class CultivatedTab:
     def __init__(self, mycursor, mydb):
         self.mycursor = mycursor
@@ -16,6 +18,8 @@ class CultivatedTab:
         if create_button:
             self.mycursor.execute("SELECT COUNT(*) FROM cultivated_areas")
             result = self.mycursor.fetchone()[0]
+            
+            # Save Picture to localhost
             new_path = "/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/DEED"
             fileName = os.path.join(new_path, f"{result + 1}.jpg")
             with open(fileName, "wb") as file:

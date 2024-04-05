@@ -49,7 +49,7 @@ def sign_up():
         lastname = st.text_input(":blue[นามสกุล]", key="lastname_farmer", placeholder="รัตนเรืองรอง")
         birthday = st.date_input(":blue[วันเกิด]", key="birthday_farmer")
         membership = st.date_input(":blue[วันที่เริ่มเป็นสมาชิก]", key="membership_farmer")
-        status = st.text_input(":blue[สถานะ]", key="status_farmer", placeholder="โสด/ไม่โสด")
+        # status = st.text_input(":blue[สถานะ]", key="status_farmer", placeholder="โสด/ไม่โสด")
         phonenumber = st.text_input(":blue[เบอร์โทร]", key="phonenumber_farmer", placeholder="0857772222")
         email = st.text_input(":blue[อีเมล]", key="email_farmer", placeholder="mitrphol@gmail.com")
         password = st.text_input(":blue[รหัสผ่าน (ต้องมีมากกว่า 6 ตัว)]", key="password_farmer", type="password")
@@ -77,10 +77,10 @@ def sign_up():
                                         file.write(st.session_state['Myimage'].getbuffer())
                                         st.success("บันทึกรูปภาพสำเร็จ")
                                     hashed_password = stauth.Hasher([password1]).generate()
-                                    sql = "insert into farmer(farmer_id, farmer_firstname,farmer_lastname,farmer_birthday,farmer_start_membership,farmer_status,phone_number,password,email,image) values(:1,:2,:3,:4,:5,:6,:7,:8,:9,:10)"
-                                    val = (file_count+1, firstname,lastname, birthday, membership, status, phonenumber, hashed_password[0], email, fileName)
+                                    sql = "insert into farmer(farmer_id, farmer_firstname,farmer_lastname,farmer_birthday,farmer_start_membership,phone_number,password,email,image) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                                    val = (file_count+1, firstname,lastname, birthday, membership, phonenumber, hashed_password[0], email, fileName)
                                     mycursor.execute(sql, val)
-                                    mydb._instance.commit()
+                                    mydb.commit()
                                     st.success("ลงทะเบียนเสร็จสมบูรณ์")
                                     st.balloons()
                             else:

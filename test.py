@@ -59,13 +59,22 @@
 #
 # if __name__ == "__main__":
 #     main()
-import pandas as pd
-import streamlit_authenticator as stauth
-import streamlit as st
-import re
-import os
-print(pd.__version__)
-print(st.__version__)
-print(re.__version__)
-print(os.__version__)
+
+import firebase_admin
+from firebase_admin import credentials, firestore, storage
+
+cred = credentials.Certificate("./ecarbon-ead53-firebase-adminsdk-b1iav-d2f304bd54.json")
+app = firebase_admin.initialize_app(cred, { 'storageBucket' : 'ecarbon-ead53.appspot.com' })
+photo_path1 = '/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/ID/1.jpg'
+bucket = storage.bucket()
+blob = bucket.blob(f'ID/ID{numberofpictureId}.jpg')
+blob.upload_from_filename(photo_path1)
+photo_path2 = '/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/DEED/1.jpg'
+bucket = storage.bucket()
+blob = bucket.blob(f'DEED/ID{numberofpicturedeed}.jpg')
+blob.upload_from_filename(photo_path2)
+print('Photo uploaded successfully!')
+
+
+
 

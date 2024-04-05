@@ -13,7 +13,7 @@ from PolygonDraw import polygon
 import snowflake.connector
 
 # Set page configuration
-st.set_page_config(page_title='Streamlit', page_icon='👨🏻‍🌾', initial_sidebar_state="collapsed")
+# st.set_page_config(page_title='Streamlit', page_icon='👨🏻‍🌾', initial_sidebar_state="collapsed")
 
 # Establish database connection
 # mydb = mysql.connector.connect(
@@ -66,9 +66,9 @@ try:
     passwords = []
 
     for user in result:
-        emails.append(user[8])  # Assuming email is the first field in the tuple
-        usernames.append(user[8])
-        passwords.append(user[7])  # Assuming password is the second field in the tuple
+        emails.append(user[7])  # Assuming email is the first field in the tuple
+        usernames.append(user[7])
+        passwords.append(user[6])  # Assuming password is the second field in the tuple
 
     credentials = {'usernames': {}}  # Fix the key here
 
@@ -172,7 +172,7 @@ try:
                     # Convert the 'farmer' result to a DataFrame
                     farmer_df = pd.DataFrame(farmer_result, columns=['farmer_id', 'farmer_firstname', 'farmer_lastname',
                                                                      'farmer_birthday', 'farmer_start_membership',
-                                                                     'farmer_status', 'phone_number', 'password',
+                                                                      'phone_number', 'password',
                                                                      'email', 'image'])
 
                     # Execute the SQL query to fetch data from the 'carbon_footprint' table
@@ -262,7 +262,7 @@ try:
 
                     pages = split_frame(dataset, batch_size)
                     pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
-                    download_df = merged_df.drop(columns=['image', 'phone_number', 'farmer_status', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'fertilizer_type_id', 'description'])
+                    download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'fertilizer_type_id', 'description'])
 
                     csv = convert_df(download_df)
 
