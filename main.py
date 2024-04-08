@@ -11,7 +11,6 @@ from carbon_footprint import carbon_footprint
 import pandas as pd
 from PolygonDraw import polygon
 import snowflake.connector
-from dotenv import load_dotenv
 
 # Set page configuration
 # st.set_page_config(page_title='Streamlit', page_icon='👨🏻‍🌾', initial_sidebar_state="collapsed")
@@ -209,7 +208,6 @@ try:
                     fertilizer_df = pd.DataFrame(fertilizer_query, columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name", "fertilizer_weight_in_kilogram", "fertilizer_productiondate", "fertilizer_type_id"])
                     merged_df = pd.merge(merged_df,fertilizer_df, on='cultivated_areas_id', how='outer')
 
-                    import pandas as pd
 
                     mycursor.execute("SELECT * FROM fertilizer_type")
                     fer_type_query = mycursor.fetchall()
@@ -263,7 +261,7 @@ try:
 
                     pages = split_frame(dataset, batch_size)
                     pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
-                    download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'fertilizer_type_id', 'description'])
+                    download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'fertilizer_type_id', 'description', 'email', 'farmer_start_membership', 'farmer_birthday', 'carbon_footprint_id'])
 
                     csv = convert_df(download_df)
 
