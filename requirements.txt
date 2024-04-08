@@ -10,3 +10,4 @@ snowflake-snowpark-python==1.12.1
 tokenizers==0.13.3
 toml==0.10.2
 firebase-admin==6.5.0
+python-dotenv==1.0.0
