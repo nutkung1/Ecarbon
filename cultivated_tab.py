@@ -113,8 +113,29 @@ class CultivatedTab:
         id = st.number_input("ไอดีพื้นที่ปลูก", min_value=1, key="del_cultivated_id")
         delete_button = st.button("Delete", key="delete_button_cul")
         if delete_button:
+            # Retrieve the URL or path of the image associated with the farmer's record
+            self.mycursor.execute("SELECT deed FROM cultivated_areas WHERE cultivated_areas_id = %s", (id,))
+            image_url = self.mycursor.fetchone()[0]
+
+            # Delete the farmer's record from the database
             sql = "DELETE FROM cultivated_areas WHERE cultivated_areas_id = %s"
             val = (id,)
             self.mycursor.execute(sql, val)
             self.mydb.commit()
-            st.success("Record Deleted Successfully!!!")
+
+            # Delete the image from Firebase Storage if it exists
+            if image_url:
+                try:
+                    # Get a reference to the image in Firebase Storage (remove the bucket name from the URL)
+                    image_blob = storage.bucket().blob(
+                        image_url.replace('https://storage.googleapis.com/ecarbon-ead53.appspot.com/', ''))
+                    # Delete the image
+                    image_blob.delete()
+                    st.success("Record and associated image deleted successfully!")
+                except Exception as e:
+                    st.error(f"Error deleting image: {e}")
+            else:
+                st.success("Record deleted successfully! (No associated image)")
+
+
+
