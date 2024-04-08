@@ -11,6 +11,7 @@ from carbon_footprint import carbon_footprint
 import pandas as pd
 from PolygonDraw import polygon
 import snowflake.connector
+from dotenv import load_dotenv
 
 # Set page configuration
 # st.set_page_config(page_title='Streamlit', page_icon='👨🏻‍🌾', initial_sidebar_state="collapsed")

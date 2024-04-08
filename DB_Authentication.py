@@ -1,10 +1,13 @@
 import streamlit as st
 import streamlit_authenticator as stauth
-import datetime
 import re
 import mysql.connector
 import os
 import snowflake.connector
+import firebase_admin
+from firebase_admin import credentials, storage
+from dotenv import load_dotenv
+import os
 
 # Establish database connection
 # mydb = st.connection("snowflake")
@@ -27,6 +30,64 @@ mydb = snowflake.connector.connect(
     schema=schema
 )
 mycursor = mydb.cursor()
+
+def configure():
+    load_dotenv()
+
+configure()
+if not firebase_admin._apps:
+    # Initialize the Firebase app only if it hasn't been initialized before
+    firebase_type = os.environ.get('type')
+    firebase_project_id = os.environ.get('project_id')
+    firebase_private_key_id = os.environ.get('private_key_id')
+    firebase_private_key = os.environ.get('private_key')
+    firebase_client_email = os.environ.get('client_email')
+    firebase_client_id = os.environ.get('client_id')
+    firebase_auth_uri = os.environ.get('auth_uri')
+    firebase_token_uri = os.environ.get('token_uri')
+    firebase_auth_provider = os.environ.get('auth_provider_x509_cert_url')
+    firebase_client_x509 = os.environ.get('client_x509_cert_url')
+    firebase_universe_domain = os.environ.get('googleapis.com')
+
+    cred = credentials.Certificate({
+        'type':firebase_type,
+        'project_id': firebase_project_id,
+        'private_key_id': firebase_private_key_id,
+        'private_key': firebase_private_key.replace(r'\n', '\n'),
+        'client_email': firebase_client_email,
+        'client_id': firebase_client_id,
+        'auth_uri': firebase_auth_uri,
+        'token_uri': firebase_token_uri,
+        'auth_provider_x509_cert_url': firebase_auth_provider,
+        'client_x509_cert_url': firebase_client_x509,
+        'universe_domain': firebase_universe_domain
+    })
+
+    app = firebase_admin.initialize_app(cred, { 'storageBucket' : 'ecarbon-ead53.appspot.com' })
+
+mycursor.execute("SELECT COUNT(*) FROM FARMER")
+result = mycursor.fetchone()[0]
+
+def upload_image_to_firebase(image_data):
+    """Uploads an image to Firebase Storage.
+
+    Args:
+        image_data (bytes): The image data in bytes format.
+
+    Returns:
+        str: The upload URL for the image in Firebase Storage, or None if an error occurs.
+    """
+
+    bucket = storage.bucket()
+    try:
+        # Generate a unique filename to avoid conflicts
+        filename = f'ID/{result+1}'  # Example filename pattern
+        blob = bucket.blob(filename)
+        blob.upload_from_string(image_data, content_type='image/jpeg')  # Adjust content type if needed
+        return blob.public_url  # Make the image publicly accessible (optional)
+    except Exception as e:
+        print(f"Error uploading image: {e}")
+        return None
 
 def validate_email(email):
     pattern = "^[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
@@ -64,21 +125,24 @@ def sign_up():
                             if picture:
                                 st.session_state['Myimage'] = picture
                                 if picture:
-                                    st.session_state['Myimage'] = picture
+                                    st.session_state["image_data"] = picture.getbuffer().tobytes()
                                 if st.session_state['Myimage']:
-                                    fileName = st.session_state['Myimage'].name
-                                    new_path = "/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/ID"
-                                    file_count = 0
-                                    for item in os.listdir(new_path):
-                                        if os.path.isfile(os.path.join(new_path, item)):
-                                            file_count += 1
-                                    fileName = os.path.join(new_path, f"{file_count+1}.jpg")
-                                    with open(fileName, "wb") as file:
-                                        file.write(st.session_state['Myimage'].getbuffer())
-                                        st.success("บันทึกรูปภาพสำเร็จ")
+                                    # fileName = st.session_state['Myimage'].name
+                                    # new_path = "/Users/suchanatratanarueangrong/Mitrphol_ecarbon/Streamlit/CRUD_REAL/Picture/ID"
+                                    upload_url = upload_image_to_firebase(st.session_state["image_data"])
+                                    # for item in os.listdir(new_path):
+                                    #     if os.path.isfile(os.path.join(new_path, item)):
+                                    #         file_count += 1
+                                    # fileName = os.path.join(new_path, f"{file_count+1}.jpg")
+                                    # with open(fileName, "wb") as file:
+                                    #     file.write(st.session_state['Myimage'].getbuffer())
+                                    #     st.success("บันทึกรูปภาพสำเร็จ")
+                                    # mycursor.execute("SELECT COUNT(*) FROM FARMER")
+                                    # result = mycursor.fetchone()[0]
                                     hashed_password = stauth.Hasher([password1]).generate()
+                                    print(result+1)
                                     sql = "insert into farmer(farmer_id, farmer_firstname,farmer_lastname,farmer_birthday,farmer_start_membership,phone_number,password,email,image) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-                                    val = (file_count+1, firstname,lastname, birthday, membership, phonenumber, hashed_password[0], email, fileName)
+                                    val = (result+1, firstname,lastname, birthday, membership, phonenumber, hashed_password[0], email, upload_url)
                                     mycursor.execute(sql, val)
                                     mydb.commit()
                                     st.success("ลงทะเบียนเสร็จสมบูรณ์")
@@ -99,4 +163,4 @@ def sign_up():
 #     sign_up()
 #
 # if __name__ == "__main__":
-#     main()
+#     sign_up()
