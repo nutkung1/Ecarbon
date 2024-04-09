@@ -11,3 +11,7 @@ tokenizers==0.13.3
 toml==0.10.2
 firebase-admin==6.5.0
 python-dotenv==1.0.0
+geojson==3.0.1
+json5==0.9.14
+jsonpointer==2.4
+jsonschema==4.19.0
