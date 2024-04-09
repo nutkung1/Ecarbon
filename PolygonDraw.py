@@ -81,7 +81,6 @@ def polygon():
         submit_button = st.form_submit_button(label='ส่ง')
 
     if lat and lon:
-        # ... (rest of your code for creating the Folium map) ...
 
         # Fetch GeoJSON data from Firebase Storage
         geo_json_data = fetch_geojson_from_firebase("ecarbon_MDC.geojson")
