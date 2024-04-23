@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import streamlit_authenticator as stauth
 from DB_Authentication import sign_up
@@ -13,8 +14,9 @@ from PolygonDraw import polygon
 import snowflake.connector
 import matplotlib.pyplot as plt
 import numpy as np
+from dotenv import load_dotenv
 
-
+load_dotenv()
 # Set page configuration
 st.set_page_config(page_title='Streamlit', initial_sidebar_state="collapsed")
 
@@ -26,16 +28,21 @@ st.set_page_config(page_title='Streamlit', initial_sidebar_state="collapsed")
 #     database=st.secrets.db_credentials.database,
 # )
 # mydb = st.connection("snowflake")
-account = "PVFGFAY-IY52619"
-#account = "gp94921.ap-southeast-1"
-user = "suchanat"
-password = "NuT0863771558-"
-role = "ACCOUNTADMIN"
-warehouse = "COMPUTE_WH"
-database = "ECARBON"
-schema = "ECARBON"
+account = os.getenv('account')
+user = os.getenv('user_snow')
+password = os.getenv('password')
+role = os.getenv('role')
+warehouse = os.getenv('warehouse')
+database = os.getenv('database')
+schema = os.getenv('schema')
+# account="PIPWYPD-LO69630"
+# user="suchanat"
+# password="NuT0863771558-"
+# role="ACCOUNTADMIN"
+# warehouse="COMPUTE_WH"
+# database="ECARBON"
+# schema="ECARBON"
 
-# Create a connection
 mydb = snowflake.connector.connect(
     user=user,
     password=password,
@@ -67,12 +74,12 @@ try:
     emails = []
     usernames = []
     passwords = []
+    email_1 = len(usernames)
 
     for user in result:
         emails.append(user[7])  # Assuming email is the first field in the tuple
         usernames.append(user[7])
         passwords.append(user[6])  # Assuming password is the second field in the tuple
-
     credentials = {'usernames': {}}  # Fix the key here
 
     for index in range(len(emails)):
@@ -109,10 +116,9 @@ try:
                 DashOrCrud = st.sidebar.selectbox("หน้ารวมผล หรือ CRUD", ("หน้ารวมผล", "CRUD"))
                 if DashOrCrud == 'CRUD':
                     tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(
-                        ["Cultivated_areas", "Fertilizer", "Fertilizer_type", "Fuel", "carbon_offset", "carbon_footprint", "Polygon", "Data Collection"])
-
+                        ["พื้นที่ปลูก", "ปุ๋ย", "ชนิดปุ๋ย", "น้ำมัน", "การทดแทนคาร์บอน", "คาร์บอนฟุตพริ้นท์รวม", "ขอบเขตพื้นที่", "หน้ารวมข้อมูล"])
                     sidebar_container = st.sidebar.empty()
-                    option = sidebar_container.selectbox("Select an Operations", ("สร้าง", "อ่าน", "อัพเดท", "ลบ"))
+                    option = sidebar_container.selectbox("เลือกวิธีการดำเนินการ", ("สร้าง", "อ่าน", "อัพเดท", "ลบ"))
                     st.sidebar.write(f"ยินดีต้อนรับ {username}")
                     authenticator.logout("ล็อคเอ้าท์", "sidebar")
                     with tab2:
@@ -212,16 +218,16 @@ try:
 
                         mycursor.execute("SELECT * FROM fertilizer")
                         fertilizer_query = mycursor.fetchall()
-                        fertilizer_df = pd.DataFrame(fertilizer_query, columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name", "fertilizer_weight_in_kilogram", "fertilizer_productiondate", "fertilizer_type_id"])
+                        fertilizer_df = pd.DataFrame(fertilizer_query, columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name", "fertilizer_weight_in_kilogram", "fertilizer_productiondate", "type_name"])
                         merged_df = pd.merge(merged_df,fertilizer_df, on='cultivated_areas_id', how='outer')
 
 
                         mycursor.execute("SELECT * FROM fertilizer_type")
                         fer_type_query = mycursor.fetchall()
-                        fer_type_df = pd.DataFrame(fer_type_query,
-                                                   columns=["fertilizer_type_id", "type_name", "description"])
-                        merged_df = pd.merge(merged_df, fer_type_df, on='fertilizer_type_id', how='outer')
-                        merged_df.drop_duplicates(['farmer_id', 'cultivated_areas_id', 'fertilizer_type_id'], inplace=True)
+                        fer_type_df = pd.DataFrame(fer_type_query, columns=["type_name", "description"])
+                        merged_df = pd.merge(merged_df, fer_type_df, on='type_name', how='outer')
+
+                        merged_df.drop_duplicates(['farmer_id', 'cultivated_areas_id'], inplace=True)
 
                         # Convert fertilizer_weight_in_kilogram to float
                         merged_df['fertilizer_weight_in_kilogram'] = merged_df['fertilizer_weight_in_kilogram'].astype(float)
@@ -241,13 +247,13 @@ try:
                         # st.table(merged_df)
                         top_menu = st.columns(3)
                         with top_menu[0]:
-                            sort = st.radio("Sort Data", options=["Yes", "No"], horizontal=1, index=1)
-                        if sort == "Yes":
+                            sort = st.radio("เรียงข้อมูล", options=["ใช่", "ไม่"], horizontal=1, index=1)
+                        if sort == "ใช่":
                             with top_menu[1]:
-                                sort_field = st.selectbox("Sort By", options=merged_df.columns)
+                                sort_field = st.selectbox("เรียงข้อมูลโดย", options=merged_df.columns)
                             with top_menu[2]:
                                 sort_direction = st.radio(
-                                    "Direction", options=["⬆️", "⬇️"], horizontal=True
+                                    "วิธีการเรียง", options=["⬆️", "⬇️"], horizontal=True
                                 )
                             dataset = merged_df.sort_values(
                                 by=sort_field, ascending=sort_direction == "⬆️", ignore_index=True
@@ -255,20 +261,20 @@ try:
                         pagination = st.container()
                         bottom_menu = st.columns((4, 1, 1))
                         with bottom_menu[2]:
-                            batch_size = st.selectbox("Page Size", options=[25, 50, 100])
+                            batch_size = st.selectbox("ขนาดหน้า", options=[25, 50, 100])
                         with bottom_menu[1]:
                             total_pages = (
                                 int(len(dataset) / batch_size) if int(len(dataset) / batch_size) > 0 else 1
                             )
                             current_page = st.number_input(
-                                "Page", min_value=1, max_value=total_pages, step=1
+                                "หน้า", min_value=1, max_value=total_pages, step=1
                             )
                         with bottom_menu[0]:
-                            st.markdown(f"Page **{current_page}** of **{total_pages}** ")
+                            st.markdown(f"หน้า **{current_page}** จาก **{total_pages}** ")
 
                         pages = split_frame(dataset, batch_size)
                         pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
-                        download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'fertilizer_type_id', 'description', 'email', 'farmer_start_membership', 'farmer_birthday', 'carbon_footprint_id'])
+                        download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'description', 'email', 'farmer_start_membership', 'farmer_birthday', 'carbon_footprint_id'])
 
                         csv = convert_df(download_df)
 
@@ -338,6 +344,8 @@ try:
                     plt.title("The proportion between Carbon Credit and CarbonFootprint in 2024")
                     # Display chart in Streamlit
                     st.pyplot(fig1)
+                    st.sidebar.write(f"ยินดีต้อนรับ {username}")
+                    authenticator.logout("ล็อคเอ้าท์", "sidebar")
 
             elif not authenticator_status:
                 with info:

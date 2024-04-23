@@ -7,7 +7,6 @@ import requests
 import datetime
 import os
 from dotenv import load_dotenv
-import json
 
 def configure():
     load_dotenv()
@@ -45,94 +44,62 @@ if not firebase_admin._apps:
 
 
 # Function to fetch GeoJSON data from Firebase Storage
-# def fetch_geojson_from_firebase(file_path):
-#     bucket = storage.bucket()
-#     blob = bucket.blob(file_path)
-#
-#     # Get a temporary download URL for the GeoJSON file
-#     download_url = blob.generate_signed_url(expiration=datetime.timedelta(minutes=5))
-#
-#     # Fetch the GeoJSON data using the URL
-#     response = requests.get(download_url)
-#     response.raise_for_status()
-#
-#     return response.json()
 def fetch_geojson_from_firebase(file_path):
     bucket = storage.bucket()
     blob = bucket.blob(file_path)
 
-    # Download the GeoJSON file to a temporary file
-    temp_file = "/tmp/temp_geojson.json"  # Temporary file path
-    blob.download_to_filename(temp_file)
+    # Get a temporary download URL for the GeoJSON file
+    download_url = blob.generate_signed_url(expiration=datetime.timedelta(minutes=5))
 
-    # Read the downloaded GeoJSON file
-    with open(temp_file, "r") as f:
-        geojson_data = json.load(f)
+    # Fetch the GeoJSON data using the URL
+    response = requests.get(download_url)
+    response.raise_for_status()
 
-    return geojson_data
+    return response.json()
+
 
 def polygon():
     # Streamlit app title
     st.title("ตรวจเช็คขอบเขตพื้นที่")
     with st.form(key='my_form', clear_on_submit=False):
-        lat = st.number_input("ละติจูด", placeholder="ละติจูด", step=1.,format="%.7f")
-        lon = st.number_input("ลองจิจูด", placeholder="ลองจิจูด", step=1.,format="%.7f")
-
+        search = st.text_input("ชื่อชาวไร่", placeholder="ชื่อชาวไร่")
         submit_button = st.form_submit_button(label='ส่ง')
 
-    if lat and lon:
+    # Fetch GeoJSON data from Firebase Storage
+    geo_json_data = fetch_geojson_from_firebase("ecarbon_MDC.geojson")
 
-        # Fetch GeoJSON data from Firebase Storage
-        geo_json_data = fetch_geojson_from_firebase("ecarbon_MDC.geojson")
-        map_div = folium.Map(location=[lat, lon], zoom_start=16)
+    # Initialize the Folium map
+    map_div = folium.Map(location=[13.736717, 100.523186], zoom_start=15)
 
-        # Add GeoJSON layer to the Folium map
-        geo_json_layer = folium.GeoJson(geo_json_data)
-        geo_json_layer.add_to(map_div)
+    if search:
+        found = False
+        for feature in geo_json_data['features']:
+            farmer_name = feature['properties'].get('ชื่อชาวไร่')
+            if farmer_name and search in farmer_name:
+                # Extract the coordinates
+                coordinates = feature['geometry']['coordinates'][0][0]
+                lat, lon = coordinates[1], coordinates[0]
 
-        # Create a Folium map
-        # map_div = folium.Map(location=[lat, lon], zoom_start=16)
-        # 14.7644528723
-        # 99.731270398600003
-        # geo_json_data = "/Users/suchanatratanarueangrong/Mitrphol_ecarbon/ข้อมูลชาวไร่/ecarbon_MDC.geojson"
+                # Print the result
+                st.write("พบข้อมูลสำหรับชื่อชาวไร่:", farmer_name)
+                st.write("Latitude:", lat)
+                st.write("Longitude:", lon)
 
-        # Add OpenStreetMap tiles
-        tile_layer_div_0 = folium.TileLayer(
-            tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attr="OpenStreetMap contributors",
-            name="OpenStreetMap",
-            overlay=True,
-            control=True,
-        )
-        tile_layer_div_0.add_to(map_div)
+                # Add marker to the map
+                folium.Marker(location=[lat, lon], popup=farmer_name).add_to(map_div)
 
-        # Define GeoJSON data
-        # geo_json_data = {
-        #     "type": "FeatureCollection",
-        #     "features": [
-        #         {
-        #             "type": "Feature",
-        #             "properties": {},
-        #             "geometry": {
-        #                 "type": "Polygon",
-        #                 "coordinates": [[
-        #                     [-122.399077892527, 37.7934347109497],
-        #                     [-122.398922660838, 37.7934544916178],
-        #                     [-122.398980265018, 37.7937266504805],
-        #                     [-122.399133972495, 37.7937070646238],
-        #                     [-122.399077892527, 37.7934347109497]
-        #                 ]]
-        #             }
-        #         }
-        #     ]
-        # }
+                # Update map view to focus on the coordinates of the searched farmer
+                map_div.location = [lat, lon]
+                map_div.zoom_start = 15  # Adjust zoom level as needed
 
-        # Add GeoJSON layer to the Folium map
-        geo_json_layer = folium.GeoJson(geo_json_data)
-        geo_json_layer.add_to(map_div)
+                found = True
 
-        # Streamlit component to display the Folium map
-        folium_static(map_div)
+        if not found:
+            st.write("ไม่พบข้อมูลสำหรับชื่อชาวไร่:", search)
 
-# if __name__ == "__main__":
-#     polygon()
+    # Add GeoJSON layer to the Folium map
+    folium.GeoJson(geo_json_data).add_to(map_div)
+
+    # Streamlit component to display the Folium map
+    folium_static(map_div)
+

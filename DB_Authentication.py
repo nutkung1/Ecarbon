@@ -9,17 +9,17 @@ from firebase_admin import credentials, storage
 from dotenv import load_dotenv
 import os
 
-# Establish database connection
-# mydb = st.connection("snowflake")
-account = "PVFGFAY-IY52619"
-#account = "gp94921.ap-southeast-1"
-user = "suchanat"
-password = "NuT0863771558-"
-role = "ACCOUNTADMIN"
-warehouse = "COMPUTE_WH"
-database = "ECARBON"
-schema = "ECARBON"
+load_dotenv()
 
+# Establish database connection
+account = os.getenv('account')
+user = os.getenv('user_snow')
+password = os.getenv('password')
+role = os.getenv('role')
+warehouse = os.getenv('warehouse')
+database = os.getenv('database')
+schema = os.getenv('schema')
+# print(user)
 # Create a connection
 mydb = snowflake.connector.connect(
     user=user,
@@ -158,6 +158,7 @@ def sign_up():
             else:
                 st.warning("อีเมลไม่ถูกต้อง")
         st.form_submit_button("สร้าง")  # Move submit button inside the form
+
 # sign_up()
 # def main():
 #     sign_up()

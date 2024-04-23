@@ -68,13 +68,13 @@ class CultivatedTab:
             return None
 
     def create_farmer(self):
-        st.subheader("สร้างข้อมูล")
+        st.subheader("สร้างข้อมูลพื้นที่ปลูก")
         farmer_id = st.number_input("ไอดีชาวไร่", min_value=1, key="farmer_id")
         cultivated_area = st.number_input("พื้นที่ปลูก (ไร่)", key="cultivated_area")
         latitude = st.text_input("ละจิจูด", key="latitude")
         longitude = st.text_input("ลองจิจูด", key="longitude")
         deed = st.file_uploader("อัพโหลดไฟล์โฉนดที่ดิน", type=["jpg", "png"])
-        create_button = st.button("สร้าง", key="create_button")
+        create_button = st.button("บันทึก", key="create_button")
         if create_button:
             self.mycursor.execute("SELECT COUNT(*) FROM cultivated_areas")
             result = self.mycursor.fetchone()[0]
@@ -94,7 +94,7 @@ class CultivatedTab:
             st.write(row)
 
     def update_farmer(self):
-        st.subheader("อัพเดทข้อมูล")
+        st.subheader("อัพเดทข้อมูลพื้นที่ปลูก")
         id = st.number_input("ไอดีพื้นที่ปลูก", min_value=1, key="cultivated_id")
         farmer_id = st.number_input("ไอดีชาวไร่", min_value=1, key="farmer_id")
         cultivated_area = st.number_input("พื้นที่ปลูก (ไร่)", key="cultivated_area")
@@ -109,9 +109,9 @@ class CultivatedTab:
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
 
     def delete_farmer(self):
-        st.subheader("ลบข้อมูล")
+        st.subheader("ลบข้อมูลพื้นที่ปลูก")
         id = st.number_input("ไอดีพื้นที่ปลูก", min_value=1, key="del_cultivated_id")
-        delete_button = st.button("Delete", key="delete_button_cul")
+        delete_button = st.button("ลบ", key="delete_button_cul")
         if delete_button:
             # Retrieve the URL or path of the image associated with the farmer's record
             self.mycursor.execute("SELECT deed FROM cultivated_areas WHERE cultivated_areas_id = %s", (id,))
@@ -122,6 +122,7 @@ class CultivatedTab:
             val = (id,)
             self.mycursor.execute(sql, val)
             self.mydb.commit()
+            st.success("ลบข้อมูลสำเร็จ!!!")
 
             # Delete the image from Firebase Storage if it exists
             if image_url:
