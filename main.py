@@ -114,6 +114,20 @@ try:
 
                 st.subheader('หน้าหลัก')
                 DashOrCrud = st.sidebar.selectbox("หน้ารวมผล หรือ CRUD", ("หน้ารวมผล", "CRUD"))
+                # Define custom CSS for the download button
+                custom_css = """
+                                <style>
+                                    .stDownloadButton>button {
+                                        background-color: #008CBA;
+                                        color: white;
+                                    }
+                                    .stButton>button {
+                                    background-color: #008CBA;
+                                        color: white;
+                                    }
+                                </style>
+                            """
+                st.markdown(custom_css, unsafe_allow_html=True)
                 if DashOrCrud == 'CRUD':
                     tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(
                         ["พื้นที่ปลูก", "ปุ๋ย", "ชนิดปุ๋ย", "น้ำมัน", "การทดแทนคาร์บอน", "คาร์บอนฟุตพริ้นท์รวม", "ขอบเขตพื้นที่", "หน้ารวมข้อมูล"])
@@ -203,7 +217,7 @@ try:
 
                         mycursor.execute("SELECT * FROM carbon_offset")
                         carbon_offset = mycursor.fetchall()
-                        carbon_offset_df = pd.DataFrame(carbon_offset, columns=["carbon_offset_id", "cultivated_areas_id", "total_carbon_offset", "solar_cell_in_MW", "filer_cake_in_rai", "beans_in_rai"])
+                        carbon_offset_df = pd.DataFrame(carbon_offset, columns=["carbon_offset_id", "cultivated_areas_id", "total_carbon_offset", "filer_cake_in_rai", "beans_in_rai"])
                         merged_df = pd.merge(merged_df,carbon_offset_df, on='cultivated_areas_id', how='outer')
 
                         mycursor.execute("SELECT * FROM carbon_footprint")
@@ -240,6 +254,8 @@ try:
 
 
                         merged_df['GHGCalculation'] = merged_df['GHG1'] + merged_df['GHG2'] + merged_df['GHG3']
+                        merged_df.insert(11, 'แปลง', 'ecarbon')
+                        merged_df[['cultivated_areas_in_rai', 'total_carbon_offset', 'fertilizer_weight_in_kilogram']] = merged_df[['cultivated_areas_in_rai', 'total_carbon_offset', 'fertilizer_weight_in_kilogram']].astype(float).round(2)
                         merged_df.drop(columns=['password'], inplace=True)
 
                         # Sort and Search Dataframe
@@ -247,7 +263,7 @@ try:
                         # st.table(merged_df)
                         top_menu = st.columns(3)
                         with top_menu[0]:
-                            sort = st.radio("เรียงข้อมูล", options=["ใช่", "ไม่"], horizontal=1, index=1)
+                            sort = st.radio("เรียงข้อมูล", options=["ใช่", "ไม่"], horizontal=1, index=0)
                         if sort == "ใช่":
                             with top_menu[1]:
                                 sort_field = st.selectbox("เรียงข้อมูลโดย", options=merged_df.columns)
@@ -274,17 +290,21 @@ try:
 
                         pages = split_frame(dataset, batch_size)
                         pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
-                        download_df = merged_df.drop(columns=['image', 'phone_number', 'cultivated_areas_id', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'description', 'email', 'farmer_start_membership', 'farmer_birthday', 'carbon_footprint_id'])
-
+                        download_df = merged_df.drop(columns=['image', 'phone_number', 'deed', 'carbon_offset_id', 'carbon_offset_id', 'fuel_id', 'fertilizer_id', 'description', 'email', 'farmer_start_membership', 'farmer_birthday', 'carbon_footprint_id'])
                         csv = convert_df(download_df)
 
-                        st.download_button(
-                            "ดาวน์โหลดไฟล์",
-                            csv,
-                            "file.csv",
-                            "text/csv",
-                            key='download-csv'
-                        )
+                        col = st.columns(5)
+                        # Render the custom CSS
+                        with col[2]:
+
+                            # Define your download button
+                            st.download_button(
+                                "ดาวน์โหลดไฟล์",
+                                csv,
+                                "file.csv",
+                                "text/csv",
+                                key='download-csv'
+                            )
                     # authenticator.logout("ล็อคเอ้าท์", "sidebar")
                 elif DashOrCrud == 'หน้ารวมผล':
                     col1, col2 = st.columns(2)
@@ -292,58 +312,79 @@ try:
                     TotalCarbonFootprint = mycursor.fetchone()[0]  # Fetch the first column value from the first row
                     mycursor.execute("SELECT SUM(TOTAL_CARBON_OFFSET) FROM carbon_offset")
                     TotalCarbonOffset = mycursor.fetchone()[0]  # Fetch the first column value from the first row
-                    # with col1:
+                    with col1:
                         # Generate mock data
-                    start_date = pd.Timestamp('2023-01-01')
-                    end_date = pd.Timestamp.now()
+                        start_date = pd.Timestamp('2023-01-01')
+                        end_date = pd.Timestamp.now()
 
-                    # Create a date range from January 2023 until now
-                    date_range = pd.date_range(start=start_date, end=end_date, freq='M')
+                        # Create a date range from January 2023 until now
+                        date_range = pd.date_range(start=start_date, end=end_date, freq='M')
 
-                    # Generate mock data for carbon footprint and carbon offset for each month
-                    num_months = len(date_range)
-                    carbon_footprint = np.random.randint(5, 20,
-                                                         size=num_months)  # Generating random values for carbon footprint
-                    carbon_offset = np.random.randint(2, 15,
-                                                      size=num_months)  # Generating random values for carbon offset
+                        # Generate mock data for carbon footprint and carbon offset for each month
+                        num_months = len(date_range)
+                        carbon_footprint = np.random.randint(5, 20,
+                                                             size=num_months)  # Generating random values for carbon footprint
+                        carbon_offset = np.random.randint(2, 15,
+                                                          size=num_months)  # Generating random values for carbon offset
 
-                    # Create DataFrame
-                    data = {
-                        'Date': date_range,
-                        'Carbon_Footprint': carbon_footprint,
-                        'Carbon_Offset': carbon_offset
-                    }
-                    df = pd.DataFrame(data)
-                    df.set_index('Date', inplace=True)
+                        # Create DataFrame
+                        data = {
+                            'Date': date_range,
+                            'Carbon_Footprint': carbon_footprint,
+                            'Carbon_Offset': carbon_offset
+                        }
+                        df = pd.DataFrame(data)
+                        df.set_index('Date', inplace=True)
 
-                    # Plot
-                    fig, ax = plt.subplots()
-                    df.plot(ax=ax, marker='o')
+                        # Plot
+                        fig, ax = plt.subplots()
+                        df.plot(ax=ax, marker='o')
 
-                        # Customize plot
-                    ax.set_ylabel('Ton Carbon')
-                    ax.set_xlabel('Month')
-                    ax.set_title('Carbon Footprint vs Carbon Offset')
-                    plt.grid()
-                    # Highlight each month
-                    # for month in df.index.month.unique():
-                    #     ax.axvline(df[df.index.month == month].index[0], color='gray', linestyle='--')
+                            # Customize plot
+                        ax.set_ylabel('Ton Carbon')
+                        ax.set_xlabel('Month')
+                        ax.set_title('Carbon Footprint vs Carbon Offset')
+                        plt.grid()
+                        # Highlight each month
+                        # for month in df.index.month.unique():
+                        #     ax.axvline(df[df.index.month == month].index[0], color='gray', linestyle='--')
 
-                    # Display chart in Streamlit
-                    st.pyplot(fig)
+                        # Display chart in Streamlit
+                        st.pyplot(fig)
 
-                    # with col2:
-                    labels = ['Carbon Footprint', 'Carbon Offset']
-                    sizes = [TotalCarbonFootprint, TotalCarbonOffset]
-                    colors = ['#ff9999', '#66b3ff']
+                    with col2:
+                        labels = ['Carbon Footprint', 'Carbon Offset']
+                        sizes = [TotalCarbonFootprint, TotalCarbonOffset]
+                        colors = ['#ff9999', '#66b3ff']
 
-                    # Plot
-                    fig1, ax1 = plt.subplots()
-                    ax1.pie(sizes, colors=colors, labels=labels, autopct='%1.1f%%', startangle=90)
-                    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-                    plt.title("The proportion between Carbon Credit and CarbonFootprint in 2024")
-                    # Display chart in Streamlit
-                    st.pyplot(fig1)
+                        # Plot
+                        fig1, ax1 = plt.subplots()
+                        ax1.pie(sizes, colors=colors, labels=labels, autopct='%1.1f%%', startangle=90)
+                        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+                        plt.title("The proportion between Carbon Credit and CarbonFootprint in 2024")
+                        # Display chart in Streamlit
+                        st.pyplot(fig1)
+                    col3, col4 = st.columns(2)
+                    with col3:
+                        years = [2016, 2017, 2018, 2019, 2020]
+                        carbon_footprint = [50, 45, 52, 55, 38]  # Example carbon footprint data
+                        baseline = [50] * len(years)  # Example baseline data (constant)
+
+                        # Plotting
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        ax.plot(years, carbon_footprint, marker='o', color='blue', label='Carbon Footprint')
+                        ax.plot(years, baseline, linestyle='--', color='red', label='Baseline')
+                        ax.set_xlabel('Year')
+                        ax.set_ylabel('Carbon Footprint (tons)')
+                        plt.title('Carbon Footprint Over Time')
+                        ax.legend()
+                        ax.grid(True)
+                        ax.set_xticks(years)  # Show all years on x-axis
+                        plt.tight_layout()
+
+                        st.pyplot(fig)
+
+
                     st.sidebar.write(f"ยินดีต้อนรับ {username}")
                     authenticator.logout("ล็อคเอ้าท์", "sidebar")
 

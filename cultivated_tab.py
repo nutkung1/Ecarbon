@@ -14,6 +14,7 @@ class CultivatedTab:
     def configure(self):
         load_dotenv()
 
+
     def configure_firebase(self):
         if not firebase_admin._apps:
             # Initialize the Firebase app only if it hasn't been initialized before
