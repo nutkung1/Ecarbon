@@ -37,11 +37,12 @@ class Fertilizer_Type_Tab:
             st.success("อัพเดทข้อมูลสำเร็จ!!!")
     def fer_type_del(self):
         st.subheader("ลบข้อมูล")
-        id = st.number_input("ไอดีชนิดปุ๋ย", min_value=1, key="fertilizer_del_id")
+        # id = st.number_input("ไอดีชนิดปุ๋ย", min_value=1, key="fertilizer_del_id")
+        fertilizer_type_name = st.selectbox("ชนิดปุ๋ย", ('15-15-15', '10-15-20', '16-16-16', '16-16-8', '16-8-8', '21-7-18', '15-7-18', '20-8-20', '14-6-28', '14-7-35'))
         delete_button = st.button("Delete", key="Delete_button_fertype")
         if delete_button:
-            sql = "DELETE FROM fertilizer_type WHERE fertilizer_type_id=%s"
-            val = (id,)
+            sql = "DELETE FROM fertilizer_type WHERE TYPE_NAME=%s"
+            val = (fertilizer_type_name,)
             self.mycursor.execute(sql, val)
             self.mydb.commit()
             st.success("ลบข้อมูลสำเร็จ!!!")

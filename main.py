@@ -230,17 +230,39 @@ try:
                         fuel_df = pd.DataFrame(fuel_query, columns=["fuel_id", "cultivated_areas_id", "fuel_used_in_kilogram"])
                         merged_df = pd.merge(merged_df, fuel_df, on="cultivated_areas_id", how='outer')
 
+
+                        # mycursor.execute("SELECT * FROM fertilizer")
+                        # fertilizer_query = mycursor.fetchall()
+                        # fertilizer_df = pd.DataFrame(fertilizer_query, columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name", "fertilizer_weight_in_kilogram", "fertilizer_productiondate", "type_name"])
+                        # merged_df = pd.merge(merged_df,fertilizer_df, on='cultivated_areas_id', how='outer')
+                        #
+                        #
+                        # mycursor.execute("SELECT * FROM fertilizer_type")
+                        # fer_type_query = mycursor.fetchall()
+                        # fer_type_df = pd.DataFrame(fer_type_query, columns=["type_name", "description"])
+                        # merged_df = pd.merge(merged_df, fer_type_df, on='type_name', how='outer')
+                        #
+                        # merged_df.drop_duplicates(['farmer_id', 'cultivated_areas_id'], inplace=True)
                         mycursor.execute("SELECT * FROM fertilizer")
                         fertilizer_query = mycursor.fetchall()
-                        fertilizer_df = pd.DataFrame(fertilizer_query, columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name", "fertilizer_weight_in_kilogram", "fertilizer_productiondate", "type_name"])
-                        merged_df = pd.merge(merged_df,fertilizer_df, on='cultivated_areas_id', how='outer')
+                        fertilizer_df = pd.DataFrame(fertilizer_query,
+                                                     columns=["fertilizer_id", "cultivated_areas_id", "fertilizer_name",
+                                                              "fertilizer_weight_in_kilogram",
+                                                              "fertilizer_productiondate", "type_name"])
 
-
+                        # Execute the second query to fetch fertilizer type data
                         mycursor.execute("SELECT * FROM fertilizer_type")
                         fer_type_query = mycursor.fetchall()
                         fer_type_df = pd.DataFrame(fer_type_query, columns=["type_name", "description"])
-                        merged_df = pd.merge(merged_df, fer_type_df, on='type_name', how='outer')
 
+                        # Merge fertilizer_type with fertilizer on type_name
+                        merged_fertilizer_df = pd.merge(fertilizer_df, fer_type_df, on='type_name', how='outer')
+
+                        # Merge merged_fertilizer_df with merged_df on cultivated_areas_id
+                        merged_df = pd.merge(merged_df, merged_fertilizer_df, on='cultivated_areas_id', how='outer')
+
+                        merged_df.dropna(subset=['farmer_id'],inplace=True)
+                        # Drop duplicates
                         merged_df.drop_duplicates(['farmer_id', 'cultivated_areas_id'], inplace=True)
 
                         # Convert fertilizer_weight_in_kilogram to float
@@ -248,10 +270,17 @@ try:
 
                         # Use .loc to filter rows based on the condition and perform the multiplication
                         merged_df.loc[merged_df['type_name'] == '15-15-15', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.5
-                        merged_df.loc[merged_df['type_name'] == '10-15-20', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.2
+                        # merged_df.loc[merged_df['type_name'] == '10-15-20', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.2
                         merged_df.loc[merged_df['type_name'] == '20-15-10', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.6
                         merged_df.loc[merged_df['type_name'] == '12-12-26', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
-
+                        merged_df.loc[merged_df['type_name'] == '16-16-16', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '16-16-8', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '16-8-8', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '21-7-18', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '15-7-18', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '20-8-20', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '14-6-28', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
+                        merged_df.loc[merged_df['type_name'] == '14-7-35', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
 
                         merged_df['GHGCalculation'] = merged_df['GHG1'] + merged_df['GHG2'] + merged_df['GHG3']
                         merged_df.insert(11, 'แปลง', 'ecarbon')

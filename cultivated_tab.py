@@ -80,7 +80,7 @@ class CultivatedTab:
             self.mycursor.execute("SELECT COUNT(*) FROM cultivated_areas")
             result = self.mycursor.fetchone()[0]
             upload_url = self.upload_image_to_firebase(deed.read(), result)
-            sql = "INSERT INTO cultivated_areas (Cultivated_areas_id, farmer_id, cultivated_areas_in_rai, latitude, longitude, deed) VALUES (%s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO cultivated_areas (cultivated_areas_id, farmer_id, cultivated_areas_in_rai, latitude, longitude, deed) VALUES (%s, %s, %s, %s, %s, %s)"
             val = (result + 1, farmer_id, cultivated_area, latitude, longitude, upload_url)
 
             self.mycursor.execute(sql, val)
