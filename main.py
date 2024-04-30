@@ -412,6 +412,32 @@ try:
                         plt.tight_layout()
 
                         st.pyplot(fig)
+                    with col4:
+                        data = {
+                            'Year': [2019, 2020, 2021, 2022],
+                            'Gasoline': [100, 150, 200, 180],
+                            'Fertilizer': [500, 550, 600, 620],
+                            'Soil': [300, 350, 400, 380]
+                        }
+
+                        # Create DataFrame
+                        df = pd.DataFrame(data)
+
+                        # Set index to 'Year' column
+                        df.set_index('Year', inplace=True)
+
+                        # Plotting
+                        fig, ax = plt.subplots()
+                        df.plot(kind='bar', ax=ax)
+
+                        # Customize legend position
+                        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=3)
+
+                        # Display the chart
+                        st.pyplot(fig)
+
+                        # Display the DataFrame
+                        # st.write(df)
 
 
                     st.sidebar.write(f"ยินดีต้อนรับ {username}")
