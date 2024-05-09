@@ -1,4 +1,5 @@
 import streamlit as st
+import datetime
 class FertilizerTab:
     def __init__(self, mycursor, mydb):
         self.mycursor = mycursor
@@ -63,7 +64,7 @@ class FertilizerTab:
         cultivated_areas_id = st.number_input("ไอดีของพื้นที่ปลูก", key="update_fer_cul", min_value=1)
         fertilizer_name = st.text_input("ชื่อของเขต", key="update_fer_fername")
         fertilizer_weight_in_kilogram = st.number_input("น้ำหนักของปุ๋ย", key="update_fer_weight")
-        fertilizer_production = st.date_input("วันที่ใส่ปุ๋ย", key="update_fer_pro")
+        fertilizer_production = st.date_input("วันที่ใส่ปุ๋ย", key="update_fer_pro", min_value=datetime.date(year=1970, month=12, day=31))
         # fertilizer_type_id = st.number_input("ไอดีของชนิดปุ๋ย", key="update_fer_typeid", min_value=1)
         fertilizer_photos = {
             '15-15-15': 'https://ksny.in.th/wp-content/uploads/2022/07/%E0%B8%8B%E0%B8%AD%E0%B8%A2%E0%B8%A5%E0%B9%8C%E0%B9%80%E0%B8%A1%E0%B8%95-15-15-15-50kg.jpg',

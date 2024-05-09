@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Set page configuration
-st.set_page_config(page_title='Streamlit', initial_sidebar_state="collapsed")
+st.set_page_config(page_title='Streamlit', page_icon=":farmer:",initial_sidebar_state="collapsed", layout="wide",)
 
 # Establish database connection
 # mydb = mysql.connector.connect(
@@ -283,7 +283,7 @@ try:
                         merged_df.loc[merged_df['type_name'] == '14-7-35', 'FertilizerCalculation'] = merged_df['fertilizer_weight_in_kilogram'] * 3.1
 
                         merged_df['GHGCalculation'] = merged_df['GHG1'] + merged_df['GHG2'] + merged_df['GHG3']
-                        merged_df.insert(11, 'แปลง', 'ecarbon')
+                        merged_df.insert(11, 'แปลงEcarbon', 'ใช่')
                         merged_df[['cultivated_areas_in_rai', 'total_carbon_offset', 'fertilizer_weight_in_kilogram']] = merged_df[['cultivated_areas_in_rai', 'total_carbon_offset', 'fertilizer_weight_in_kilogram']].astype(float).round(2)
                         merged_df.drop(columns=['password'], inplace=True)
 
@@ -429,7 +429,7 @@ try:
                         # Plotting
                         fig, ax = plt.subplots()
                         df.plot(kind='bar', ax=ax)
-
+                        plt.title('Proportion used')
                         # Customize legend position
                         ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=3)
 

@@ -8,6 +8,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 from dotenv import load_dotenv
 import os
+import datetime
 
 load_dotenv()
 
@@ -108,7 +109,7 @@ def sign_up():
         st.subheader(':green[สมัครบัญชี]')
         firstname = st.text_input(":blue[ชื่อ]", key="firstname_farmer", placeholder="สุชาณัฎ")
         lastname = st.text_input(":blue[นามสกุล]", key="lastname_farmer", placeholder="รัตนเรืองรอง")
-        birthday = st.date_input(":blue[วันเกิด]", key="birthday_farmer")
+        birthday = st.date_input(":blue[วันเกิด]", key="birthday_farmer", min_value=datetime.date(year=1920, month=12, day=31))
         membership = st.date_input(":blue[วันที่เริ่มเป็นสมาชิก]", key="membership_farmer")
         # status = st.text_input(":blue[สถานะ]", key="status_farmer", placeholder="โสด/ไม่โสด")
         phonenumber = st.text_input(":blue[เบอร์โทร]", key="phonenumber_farmer", placeholder="0857772222")
