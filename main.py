@@ -12,8 +12,7 @@ from carbon_footprint import carbon_footprint
 import pandas as pd
 from PolygonDraw import polygon
 import snowflake.connector
-import matplotlib.pyplot as plt
-import numpy as np
+from streamlit_elements import elements, mui, html, nivo, dashboard
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -112,7 +111,7 @@ try:
             if st.session_state["authentication_status"]:
                 # Set st.session_state.disabled to True after successful login
 
-                st.subheader('หน้าหลัก')
+                # st.subheader('หน้าหลัก')
                 DashOrCrud = st.sidebar.selectbox("หน้ารวมผล หรือ CRUD", ("หน้ารวมผล", "CRUD"))
                 # Define custom CSS for the download button
                 custom_css = """
@@ -336,108 +335,150 @@ try:
                             )
                     # authenticator.logout("ล็อคเอ้าท์", "sidebar")
                 elif DashOrCrud == 'หน้ารวมผล':
-                    col1, col2 = st.columns(2)
+                    import matplotlib.pyplot as plt
+                    import numpy as np
+                    import plotly.graph_objs as go
+                    col1 = st.columns([0.05, 0.52, 0.52, 0.05])
                     mycursor.execute("SELECT SUM(TOTAL_CARBON_FOOTPRINT) FROM carbon_footprint")
                     TotalCarbonFootprint = mycursor.fetchone()[0]  # Fetch the first column value from the first row
                     mycursor.execute("SELECT SUM(TOTAL_CARBON_OFFSET) FROM carbon_offset")
                     TotalCarbonOffset = mycursor.fetchone()[0]  # Fetch the first column value from the first row
-                    with col1:
-                        # Generate mock data
-                        start_date = pd.Timestamp('2023-01-01')
-                        end_date = pd.Timestamp.now()
+                    # Generate mock data
+                    with col1[1]:
+                        with st.container(border=True, height=450):
+                            data = {
+                                'ปี': [2019, 2020, 2021, 2022],
+                                'น้ำมัน': [100, 150, 200, 180],
+                                'ปุ๋ย': [500, 550, 600, 620],
+                                'ดิน': [300, 350, 400, 380]
+                            }
 
-                        # Create a date range from January 2023 until now
-                        date_range = pd.date_range(start=start_date, end=end_date, freq='M')
+                            # Create DataFrame
+                            df = pd.DataFrame(data)
 
-                        # Generate mock data for carbon footprint and carbon offset for each month
-                        num_months = len(date_range)
-                        carbon_footprint = np.random.randint(5, 20,
-                                                             size=num_months)  # Generating random values for carbon footprint
-                        carbon_offset = np.random.randint(2, 15,
-                                                          size=num_months)  # Generating random values for carbon offset
+                            # Set index to 'Year' column
+                            df.set_index('ปี', inplace=True)
 
-                        # Create DataFrame
-                        data = {
-                            'Date': date_range,
-                            'Carbon_Footprint': carbon_footprint,
-                            'Carbon_Offset': carbon_offset
-                        }
-                        df = pd.DataFrame(data)
-                        df.set_index('Date', inplace=True)
+                            # Convert DataFrame to Plotly-compatible format
+                            data = []
+                            colors = ['#53cae9', '#0cd580', '#1e76bd']  # Define colors for each category
+                            for i, col in enumerate(df.columns):
+                                data.append(go.Bar(x=df.index, y=df[col], name=col, marker_color=colors[i]))
 
-                        # Plot
-                        fig, ax = plt.subplots()
-                        df.plot(ax=ax, marker='o')
+                            # Create stacked bar chart
+                            fig = go.Figure(data=data)
+                            fig.update_layout(
+                                barmode='stack',
+                                title='สัดส่วนการเกิดคาร์บอนฟุตพริ้นท์',
+                                xaxis_title='ปี',
+                                yaxis_title='ตัน/คาร์บอน'
+                            )
 
-                            # Customize plot
-                        ax.set_ylabel('Ton Carbon')
-                        ax.set_xlabel('Month')
-                        ax.set_title('Carbon Footprint vs Carbon Offset')
-                        plt.grid()
-                        # Highlight each month
-                        # for month in df.index.month.unique():
-                        #     ax.axvline(df[df.index.month == month].index[0], color='gray', linestyle='--')
+                            # Display the chart in Streamlit
+                            st.plotly_chart(fig)
+                    with col1[2]:
+                        with st.container(border=True, height=450):
+                            labels = ['คาร์บอนฟุตพริ้นท์', 'การทดแทนคาร์บอน']
+                            sizes = [TotalCarbonFootprint, TotalCarbonOffset]
+                            colors = ['#8ce4b4', '#9fe8d2']
 
-                        # Display chart in Streamlit
-                        st.pyplot(fig)
+                            # Create Plotly Figure for the donut chart
+                            fig = go.Figure(
+                                data=[go.Pie(labels=labels, values=sizes, hole=0.4, marker=dict(colors=colors))])
 
-                    with col2:
-                        labels = ['Carbon Footprint', 'Carbon Offset']
-                        sizes = [TotalCarbonFootprint, TotalCarbonOffset]
-                        colors = ['#ff9999', '#66b3ff']
+                            # Customize layout
+                            fig.update_layout(title="คาร์บอนฟุตพริ้นท์/การทดแทนคาร์บอน")
 
-                        # Plot
-                        fig1, ax1 = plt.subplots()
-                        ax1.pie(sizes, colors=colors, labels=labels, autopct='%1.1f%%', startangle=90)
-                        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-                        plt.title("The proportion between Carbon Credit and CarbonFootprint in 2024")
-                        # Display chart in Streamlit
-                        st.pyplot(fig1)
-                    col3, col4 = st.columns(2)
-                    with col3:
-                        years = [2016, 2017, 2018, 2019, 2020]
-                        carbon_footprint = [50, 45, 52, 55, 38]  # Example carbon footprint data
-                        baseline = [50] * len(years)  # Example baseline data (constant)
+                            # Display the donut chart in Streamlit
+                            st.plotly_chart(fig)
+                    col3 = st.columns([0.05, 0.52, 0.52, 0.05])
+                    with col3[2]:
+                        with st.container(border=True, height=300):
+                            st.subheader("Info")
+                            col = st.columns([0.1, 0.4, 0.4, 0.4])
+                            with col[1]:
+                                st.image("https://media.istockphoto.com/id/1323550608/vector/co2-reduction-cloud-eco-vector-icon.jpg?s=612x612&w=0&k=20&c=jO3OZfYAg9gB8TWvzH8BR64Lq3pFrfHcOvxpSgB-cjA=", width=150)
+                                st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Carbon Reduction</p>",unsafe_allow_html=True)
+                            with col[2]:
+                                st.image("https://static.vecteezy.com/system/resources/previews/031/757/668/original/carbon-credit-icon-for-graphic-design-logo-website-social-media-mobile-app-ui-illustration-png.png", width=119)
+                                st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Carbon Credit</p>",unsafe_allow_html=True)
+                            with col[3]:
+                                st.image("https://cdn-icons-png.flaticon.com/512/2485/2485389.png", width=119)
+                                st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Value: 800000 บาท</p>",unsafe_allow_html=True)
+                            # st.subheader("Rating")
+                            # st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Rating</p>",
+                            #             unsafe_allow_html=True)
 
-                        # Plotting
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        ax.plot(years, carbon_footprint, marker='o', color='blue', label='Carbon Footprint')
-                        ax.plot(years, baseline, linestyle='--', color='red', label='Baseline')
-                        ax.set_xlabel('Year')
-                        ax.set_ylabel('Carbon Footprint (tons)')
-                        plt.title('Carbon Footprint Over Time')
-                        ax.legend()
-                        ax.grid(True)
-                        ax.set_xticks(years)  # Show all years on x-axis
-                        plt.tight_layout()
+                        #     start_date = pd.Timestamp('2023-01-01')
+                        #     end_date = pd.Timestamp.now()
+                        #
+                        #     # Create a date range from January 2023 until now
+                        #     date_range = pd.date_range(start=start_date, end=end_date, freq='M')
+                        #
+                        #     # Generate mock data for carbon footprint and carbon offset for each month
+                        #     num_months = len(date_range)
+                        #     carbon_footprint = np.random.randint(5, 20, size=num_months)
+                        #     carbon_offset = np.random.randint(2, 15, size=num_months)
+                        #
+                        #     # Create DataFrame
+                        #     data = {
+                        #         'Date': date_range,
+                        #         'Carbon_Footprint': carbon_footprint,
+                        #         'Carbon_Offset': carbon_offset
+                        #     }
+                        #     df = pd.DataFrame(data)
+                        #     df.set_index('Date', inplace=True)
+                        #
+                        #     # Plot using Plotly
+                        #     fig = go.Figure()
+                        #
+                        #     # Add traces
+                        #     fig.add_trace(go.Scatter(x=df.index, y=df['Carbon_Footprint'], mode='markers+lines',
+                        #                              name='Carbon Footprint'))
+                        #     fig.add_trace(
+                        #         go.Scatter(x=df.index, y=df['Carbon_Offset'], mode='markers+lines', name='Carbon Offset'))
+                        #
+                        #     # Customize layout
+                        #     fig.update_layout(
+                        #         title='Carbon Footprint vs Carbon Offset',
+                        #         xaxis_title='Month',
+                        #         yaxis_title='Ton Carbon',
+                        #         xaxis=dict(showgrid=True),
+                        #         yaxis=dict(showgrid=True)
+                        #     )
+                        #
+                        #     # Display chart in Streamlit
+                        #     st.plotly_chart(fig)
+                    with col3[1]:
+                        with st.container(border=True, height=450):
+                        # Define data
+                            years = [2016, 2017, 2018, 2019, 2020]
+                            carbon_footprint = [50, 45, 52, 55, 38]  # Example carbon footprint data
+                            baseline = [50] * len(years)  # Example baseline data (constant)
 
-                        st.pyplot(fig)
-                    with col4:
-                        data = {
-                            'Year': [2019, 2020, 2021, 2022],
-                            'Gasoline': [100, 150, 200, 180],
-                            'Fertilizer': [500, 550, 600, 620],
-                            'Soil': [300, 350, 400, 380]
-                        }
+                            # Create Plotly Figure
+                            fig = go.Figure()
 
-                        # Create DataFrame
-                        df = pd.DataFrame(data)
+                            # Add traces for carbon footprint and baseline
+                            fig.add_trace(
+                                go.Scatter(x=years, y=carbon_footprint, mode='markers+lines', name='คาร์บอนฟุตพริ้นท์',
+                                           marker=dict(color='#03b9cf')))
+                            fig.add_trace(go.Scatter(x=years, y=baseline, mode='lines', name='ค่าที่ยอมรับได้',
+                                                     line=dict(color='red', dash='dash')))
 
-                        # Set index to 'Year' column
-                        df.set_index('Year', inplace=True)
+                            # Customize layout
+                            fig.update_layout(
+                                title='คาร์บอนฟุตพริ้นท์ในแต่ละปี',
+                                xaxis_title='ปี',
+                                yaxis_title='คาร์บอนฟุตพริ้นท์ (ตัน)',
+                                legend=dict(x=0, y=1, xanchor='left', yanchor='top'),
+                                xaxis=dict(tickmode='linear', tickvals=years),
+                                yaxis=dict(showgrid=True),
+                                plot_bgcolor='rgba(0,0,0,0)'
+                            )
 
-                        # Plotting
-                        fig, ax = plt.subplots()
-                        df.plot(kind='bar', ax=ax)
-                        plt.title('Proportion used')
-                        # Customize legend position
-                        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=3)
-
-                        # Display the chart
-                        st.pyplot(fig)
-
-                        # Display the DataFrame
-                        # st.write(df)
+                            # Display the chart in Streamlit
+                            st.plotly_chart(fig)
 
 
                     st.sidebar.write(f"ยินดีต้อนรับ {username}")
