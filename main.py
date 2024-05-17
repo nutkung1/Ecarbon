@@ -338,11 +338,24 @@ try:
                     import matplotlib.pyplot as plt
                     import numpy as np
                     import plotly.graph_objs as go
+                    logo_url = "https://cdn-icons-png.flaticon.com/512/2792/2792488.png"
+                    login_header = f"""
+                        <div style="text-align: center; background-color: #82E0AA; color: #ece5f6; padding: 10px; border-radius: 20px;">
+                            <div style="display: inline-block; background-color: #82E0AA; padding: 10px;">
+                                <img src="{logo_url}" alt="Logo" width="100">
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <h2 style='text-align: center; color: #FFFFFF; padding: 0px; padding-bottom: 10px'>หน้ารวมผล</h2>
+                            </div>
+                        </div>
+                        """
+                    st.markdown(login_header, unsafe_allow_html=True)
                     col1 = st.columns([0.05, 0.52, 0.52, 0.05])
                     mycursor.execute("SELECT SUM(TOTAL_CARBON_FOOTPRINT) FROM carbon_footprint")
                     TotalCarbonFootprint = mycursor.fetchone()[0]  # Fetch the first column value from the first row
                     mycursor.execute("SELECT SUM(TOTAL_CARBON_OFFSET) FROM carbon_offset")
                     TotalCarbonOffset = mycursor.fetchone()[0]  # Fetch the first column value from the first row
+
                     # Generate mock data
                     with col1[1]:
                         with st.container(border=True, height=450):
