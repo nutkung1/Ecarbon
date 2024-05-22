@@ -12,7 +12,6 @@ from carbon_footprint import carbon_footprint
 import pandas as pd
 from PolygonDraw import polygon
 import snowflake.connector
-from streamlit_elements import elements, mui, html, nivo, dashboard
 from dotenv import load_dotenv
 
 load_dotenv()
