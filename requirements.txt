@@ -17,3 +17,4 @@ jsonpointer==2.4
 jsonschema==4.19.0
 numpy==1.23.5
 matplotlib==3.8.0
+streamlit-elements==0.1.0
