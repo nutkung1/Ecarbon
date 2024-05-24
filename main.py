@@ -91,8 +91,8 @@ try:
 
     if st.session_state.state != 'login':
         select = st.sidebar.selectbox(
-            "ล็อคอิน/สมัครบัญชี",
-            ("ล็อคอิน", "สมัครบัญชี"),
+            "ล็อคอิน/สมัครสมาชิกชาวไร่",
+            ("ล็อคอิน", "สมัครสมาชิกชาวไร่"),
             key='unique_selection_bar_key',
         )
         if len(usernames) == 0:
@@ -103,7 +103,7 @@ try:
                 email, authenticator_status, username = authenticator.login(
                     fields={'Form name': ':green[เข้าสู่ระบบ]', 'Username': ':blue[อีเมล]', 'Password': ':blue[รหัสผ่าน]',
                             'Login': 'ล็อคอิน'})
-            elif select == 'สมัครบัญชี':
+            elif select == 'สมัครสมาชิกชาวไร่':
                 sign_up()
     if username:
         if username in usernames:

@@ -106,7 +106,7 @@ def sign_up():
     with st.form(key="signup", clear_on_submit=True):
         if 'Myimage' not in st.session_state.keys():
             st.session_state['Myimage'] = None
-        st.subheader(':green[สมัครบัญชี]')
+        st.subheader(':green[สมัครสมาชิกชาวไร่]')
         firstname = st.text_input(":blue[ชื่อ]", key="firstname_farmer", placeholder="สุชาณัฎ")
         lastname = st.text_input(":blue[นามสกุล]", key="lastname_farmer", placeholder="รัตนเรืองรอง")
         birthday = st.date_input(":blue[วันเกิด]", key="birthday_farmer", min_value=datetime.date(year=1920, month=12, day=31))
