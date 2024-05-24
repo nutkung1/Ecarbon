@@ -344,7 +344,7 @@ try:
                                 <img src="{logo_url}" alt="Logo" width="100">
                             </div>
                             <div style="margin-top: 10px;">
-                                <h2 style='text-align: center; color: #FFFFFF; padding: 0px; padding-bottom: 10px'>หน้ารวมผล</h2>
+                                <h2 style='text-align: center; color: #FFFFFF; padding: 0px; padding-bottom: 10px'>DashBoard Ecarbon</h2>
                             </div>
                         </div>
                         """
@@ -392,7 +392,7 @@ try:
                         with st.container(border=True, height=450):
                             labels = ['คาร์บอนฟุตพริ้นท์', 'การทดแทนคาร์บอน']
                             sizes = [TotalCarbonFootprint, TotalCarbonOffset]
-                            colors = ['#8ce4b4', '#9fe8d2']
+                            colors = ['#0cd580', '#9fe8d2']
 
                             # Create Plotly Figure for the donut chart
                             fig = go.Figure(
@@ -415,8 +415,12 @@ try:
                                 st.image("https://static.vecteezy.com/system/resources/previews/031/757/668/original/carbon-credit-icon-for-graphic-design-logo-website-social-media-mobile-app-ui-illustration-png.png", width=119)
                                 st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Carbon Credit</p>",unsafe_allow_html=True)
                             with col[3]:
+                                value = 8000
+                                formatted_value = "{:,.2f}".format(value)
+
                                 st.image("https://cdn-icons-png.flaticon.com/512/2485/2485389.png", width=119)
-                                st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Value: 800000 บาท</p>",unsafe_allow_html=True)
+                                st.markdown(
+                                    f"<p style='font-size: 20px; color: #B3B3B3'>Value: {formatted_value} บาท</p>", unsafe_allow_html=True)
                             # st.subheader("Rating")
                             # st.markdown(f"<p style='font-size: 20px; color: #B3B3B3'>Rating</p>",
                             #             unsafe_allow_html=True)
